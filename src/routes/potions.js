@@ -1,5 +1,5 @@
 const express = require("express");
-const { eq } = require("drizzle-orm");
+const { eq, and, like } = require("drizzle-orm");
 const renderErrorHandler = require("../utilities/renderErrorHandler");
 const db = require("../db/db");
 const { potions } = require("../db/schema");
@@ -8,8 +8,28 @@ const router = express.Router();
 
 router.get("/", async (req, res) => {
   try {
-    const allpotions = await db.select().from(potions);
-    return res.status(200).json(allpotions);
+    const { name, effect } = req.query;
+    let isDangerous = req.query.isDangarous;
+    if (!name && !effect && isDangerous === undefined) {
+      const allpotions = await db.select().from(potions);
+      return res.status(200).json(allpotions);
+    }
+
+    isDangerous = isDangerous === "true";
+    const queryPotions = await db
+      .select()
+      .from(potions)
+      .where(
+        and(
+          like(potions.name, `%${name}%`),
+          like(potions.effect, `%${effect}%`),
+          eq(potions.isDangarous,isDangerous)
+        ),
+      );
+      return res.status(200).json({
+        succes: true,
+        data: queryPotions
+      })
   } catch (err) {
     return renderErrorHandler(res, err);
   }
@@ -121,7 +141,5 @@ router.delete("/:id", async (req, res) => {
     return renderErrorHandler(req, err);
   }
 });
-
-
 
 module.exports = router;

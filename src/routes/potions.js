@@ -91,13 +91,37 @@ router.put("/:id", async (req, res) => {
       .set({ name, effect, isDangarous })
       .where(eq(+req.params.id, potions.id));
 
-      return res.status(200).json({
-        success:true,
-        message:"potion updated succesfully!",
-      })
+    return res.status(200).json({
+      success: true,
+      message: "potion updated succesfully!",
+    });
   } catch (err) {
     return renderErrorHandler(res, err);
   }
 });
+
+router.delete("/:id", async (req, res) => {
+  try {
+    const [exist] = await db
+      .select()
+      .from(potions)
+      .where(eq(+req.params.id, potions.id));
+    if (!exist) {
+      return res.status(404).json({
+        succes: false,
+        message: "fasz",
+      });
+    }
+    await db.delete(potions).where(eq(+req.params.id, potions.id));
+    return res.status(200).json({
+      succes: true,
+      message: "Fasza",
+    });
+  } catch (err) {
+    return renderErrorHandler(req, err);
+  }
+});
+
+
 
 module.exports = router;

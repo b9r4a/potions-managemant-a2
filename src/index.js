@@ -1,8 +1,9 @@
 require("dotenv").config();
 
 
-const potionsRouter = require("./routes/potions")
+const potionsRouter = require("./routes/potions");
 const express = require("express");
+const usersRouter = require("./routes/users");
 
 
 const app = express();

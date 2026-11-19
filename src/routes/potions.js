@@ -33,8 +33,7 @@ router.get("/:id", async (req, res) => {
       });
     }
     return res.status(200).json(entry);
-  } 
-  catch (err) {
+  } catch (err) {
     return renderErrorHandler(res, err);
   }
 });
@@ -68,6 +67,34 @@ router.post("/", async (req, res) => {
     return res.status(201).json({
       message: "posted succesfully",
     });
+  } catch (err) {
+    return renderErrorHandler(res, err);
+  }
+});
+
+router.put("/:id", async (req, res) => {
+  try {
+    const { name, effect, isDangarous } = req.body;
+    const [entry] = await db
+      .select()
+      .from(potions)
+      .where(eq(+req.params.id, potions.id));
+
+    if (!entry) {
+      return res.status(404).json({
+        success: false,
+        message: "ption not found",
+      });
+    }
+    await db
+      .update(potions)
+      .set({ name, effect, isDangarous })
+      .where(eq(+req.params.id, potions.id));
+
+      return res.status(200).json({
+        success:true,
+        message:"potion updated succesfully!",
+      })
   } catch (err) {
     return renderErrorHandler(res, err);
   }
